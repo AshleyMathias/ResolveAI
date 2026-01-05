@@ -1,9 +1,9 @@
 from typing import TypedDict, Optional, List, Dict, Any
 
 
-class IssueState(TypedDict):
-    #raw input
-    issue_id: str
+class IssueState(TypedDict, total=False):
+    # Raw input
+    issue_id: Optional[str]
     raw_issue_text: str
     source: str
 
@@ -13,17 +13,16 @@ class IssueState(TypedDict):
     customer_id: Optional[str]
     missing_info: List[str]
 
-    #context
-    raw_context: List[Dict[str, Any]]
+    # Context
+    rag_context: List[Dict[str, Any]]
     mcp_data: Dict[str, Any]
 
-
-    #Reasoning and decision
+    # Reasoning and decision
     proposed_actions: List[Dict[str, Any]]
     validated_actions: List[Dict[str, Any]]
     explanation: Optional[str]
     confidence_score: Optional[float]
 
-    #control flags
+    # Control flags
     requires_escalation: bool
-    erros: List[str]
+    errors: List[str]

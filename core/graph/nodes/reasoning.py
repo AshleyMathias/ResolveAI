@@ -9,10 +9,10 @@ def reasoning_node(state: IssueState) -> IssueState:
     client: OpenAI = get_openai_client()
 
     context = {
-        "issue_type": state["issue_type"],
-        "severity": state["severity"],
-        "rag_context": state["rag_context"],
-        "mcp_data": state["mcp_data"]
+        "issue_type": state.get("issue_type"),
+        "severity": state.get("severity"),
+        "rag_context": state.get("rag_context", []),
+        "mcp_data": state.get("mcp_data", {})
     }
 
     # Read the system prompt

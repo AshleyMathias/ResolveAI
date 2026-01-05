@@ -7,9 +7,10 @@ def rule_validation_node(state: IssueState) -> IssueState:
     """
     validated = []
 
-    for action in state["proposed_actions"]:
+    proposed_actions = state.get("proposed_actions", [])
+    for action in proposed_actions:
         # Simple placeholder rule
-        if action["action"] != "initiate_refund":
+        if action.get("action") != "initiate_refund":
             validated.append(action)
 
     state["validated_actions"] = validated

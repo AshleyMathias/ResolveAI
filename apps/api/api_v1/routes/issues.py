@@ -11,9 +11,9 @@ def analyze_issue(payload: dict):
     """
     Entry point for issue analysis
     """
-    initial_state = {
+    initial_state: dict = {
         "issue_id": payload.get("issue_id"),
-        "raw_issue_text": payload.get("issue_text"),
+        "raw_issue_text": payload.get("issue_text", ""),
         "source": payload.get("source", "api"),
 
         "issue_type": None,
