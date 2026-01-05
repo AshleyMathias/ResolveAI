@@ -1,3 +1,4 @@
+import os
 from core.graph.state import IssueState
 from core.llm.openai_client import get_openai_client
 from core.llm.output_schemas import ReasoningResult
@@ -14,14 +15,22 @@ def reasoning_node(state: IssueState) -> IssueState:
         "mcp_data": state["mcp_data"]
     }
 
-    response = client.responses.parse(
-        model="gpt-4.1-mini",
-        input=[
+    # Read the system prompt
+    prompt_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "llm", "prompts", "decision_reasoning.md"
+    )
+    
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        system_prompt = f.read()
+
+    # Use beta structured outputs API
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
             {
                 "role": "system",
-                "content": open(
-                    "core/llm/prompts/decision_reasoning.md"
-                ).read()
+                "content": system_prompt
             },
             {
                 "role": "user",
@@ -31,7 +40,7 @@ def reasoning_node(state: IssueState) -> IssueState:
         response_format=ReasoningResult
     )
 
-    result: ReasoningResult = response.output_parsed
+    result: ReasoningResult = response.choices[0].message.parsed
 
     state["proposed_actions"] = [
         action.model_dump() for action in result.actions

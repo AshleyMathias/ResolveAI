@@ -1,7 +1,7 @@
+import os
 from core.graph.state import IssueState
 from core.llm.openai_client import get_openai_client
 from core.llm.output_schemas import IntakeResult
-
 from openai import OpenAI
 
 
@@ -13,14 +13,22 @@ Customer Issue:
 {state['raw_issue_text']}
 """
 
-    response = client.responses.parse(
-        model="gpt-4.1-mini",
-        input=[
+    # Read the system prompt
+    prompt_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "llm", "prompts", "issue_analysis.md"
+    )
+    
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        system_prompt = f.read()
+
+    # Use beta structured outputs API
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
             {
                 "role": "system",
-                "content": open(
-                    "core/llm/prompts/issue_analysis.md"
-                ).read()
+                "content": system_prompt
             },
             {
                 "role": "user",
@@ -30,7 +38,7 @@ Customer Issue:
         response_format=IntakeResult
     )
 
-    result: IntakeResult = response.output_parsed
+    result: IntakeResult = response.choices[0].message.parsed
 
     state["issue_type"] = result.issue_type
     state["severity"] = result.severity
